@@ -1,12 +1,12 @@
 const express = require('express')
 const app = express()
 const cors = require('cors')
-const mysql = require('mysql');
 const multer = require('multer');
 const path = require('path');
+const PaypalPay = require('./routes/paypal');
 require('dotenv').config()
 const port = process.env.PORT || 3000
-
+const db = require('./model/model')
 // store image from local 
 // const storage = multer.diskStorage({
 //       destination: (req, file, cb) => {
@@ -28,25 +28,6 @@ app.use(express.json())
 
 
 
-// database connection 
-const db = mysql.createConnection({
-      host: "localhost",
-      user: "root",
-      password: "11224455",
-      database: "test",
-      port: 3306
-      // host: process.env.HOST,
-      // user: process.env.USER,
-      // password: process.env.DB_PASS,
-      // database: process.env.DB
-});
-
-// const db = mysql.createConnection({
-//       host: "db4free.net",
-//       user: "alam13",
-//       password: "Alam12@#",
-//       database: "restaurentdb"
-// });
 
 /* **************************Verify Admin ********************************* */
 app.get('/user/admin/:id', async (req, res) => {
@@ -311,9 +292,6 @@ app.get('/my-attendance', async (req, res) => {
             const end_date = req.query.end_date;
             const employee_id = req.query.employee_id;
 
-            console.log(start_date);
-            console.log(end_date);
-            console.log(employee_id);
 
             // Execute the SQL query
             const sql = `
@@ -477,26 +455,20 @@ app.patch("/menu", (req, res) => {
 
 
 /* >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Orders API >>>>>>>>>>>>>>>>>>>>> */
-
+app.use('/paypal', PaypalPay)
 
 app.post('/orderItem', (req, res) => {
       const data = req.body;
-
-
       const orderDate = new Date().toISOString().split('T')[0];
       const orderTime = new Date().toISOString().slice(11, 19);
-
 
       // Check if the customer already exists
       const checkCustomerQuery = 'SELECT * FROM customer WHERE name = ? AND phoneNumber = ? LIMIT 1';
 
       db.query(checkCustomerQuery, [data.name, data.mobile], (checkError, checkResults) => {
-            console.log(checkResults);
             if (checkError) {
-                  console.error('Error checking customer:', checkError);
                   return res.status(500).json({ InsertedId: 0, message: 'Error checking customer' });
             }
-
             if (checkResults.length === 0) {
                   // Customer does not exist, insert into the customer table
                   const insertCustomerQuery = 'INSERT INTO customer (name, phoneNumber) VALUES (?, ?)';
