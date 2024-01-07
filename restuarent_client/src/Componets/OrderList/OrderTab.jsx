@@ -62,6 +62,7 @@ const OrderTab = ({ order, index }) => {
       const price = order?.foodInfo.map(item => item.price * item.quantity).reduce((total, price) => total + price, 0);
       const totalPrice = (price + price * 0.17)
 
+      console.log(order)
 
       return (
             <>
@@ -94,6 +95,7 @@ const OrderTab = ({ order, index }) => {
                                     order?.foodInfo?.map((item, index) => <div key={index}>{item?.quantity}</div>)
                               }
                         </td>
+
                         <td>
                               ${
                                     // order?.foodInfo.map(item => item.price * item.quantity).reduce((total, price) => total + price, 0).toFixed(2)
@@ -110,8 +112,6 @@ const OrderTab = ({ order, index }) => {
                                           <p >Paypal</p>
 
                               }
-
-
 
                         </td>
                   </tr>

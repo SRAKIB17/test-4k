@@ -19,7 +19,7 @@ const Editmenu = () => {
   }
 
   const { name, image, category, recipe, price } = menuItem;
-  
+
   const onSubmit = async (data) => {
     data.id = id;
     try {
@@ -49,18 +49,12 @@ const Editmenu = () => {
 
         });
         const goToHone = () => {
-         
+
           navigate('/dashboardapp/allmenu');
         }
-
         setTimeout(goToHone, 3000)
         // deleteShoppingCart();
-
         // navigate('/dashboard');
-        
-
-
-
       } else {
         toast.error(responseData.message, {
           position: "top-right",

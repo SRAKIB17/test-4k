@@ -1,27 +1,24 @@
-import React, { useState } from 'react';
+import React from 'react';
 
-import Loader from '../Loader';
-import useUrl from '../../CustomHooks/URL/UseUrl';
-import OrderData from '../../CustomHooks/OrderData/OrderData';
-import { ToastContainer, toast } from 'react-toastify';
-import OrderTab from './OrderTab';
+import { ToastContainer } from 'react-toastify';
 import MenuData from '../../CustomHooks/MenuData/MenuData';
+import OrderData from '../../CustomHooks/OrderData/OrderData';
+import Loader from '../Loader';
+import OrderTab from './OrderTab';
 const PaypalOrder = () => {
 
       const { order, isLoading, refetch } = OrderData();
-      const {menu}= MenuData()
+      const { menu } = MenuData()
 
       if (isLoading || !menu) {
             return <Loader />
       }
-
-        // Function to get information about food items in an order
-        const getFoodInfoFromOrder = (order) => {
+      // Function to get information about food items in an order
+      const getFoodInfoFromOrder = (order) => {
             return order.items.map((item) => {
                   const foodId = item.itemID;
                   const quantity = item.quantity;
                   const foodInfo = menu.find((m) => m.id == foodId);
-
                   if (foodInfo) {
                         return {
                               foodId,
@@ -52,9 +49,15 @@ const PaypalOrder = () => {
             const wayToPurchase = order.wayOfPurchase;
             const orderStatus = order.orderStatus;
             const foodInfo = getFoodInfoFromOrder(order);
-
-
+            const payerEmail = order?.payerEmail
+            const txnID = order?.txnID
+            const paymentStatus = order?.paymentStatus
+            const paymentGetawayFee = order?.paymentGetawayFee
             return {
+                  payerEmail,
+                  txnID,
+                  paymentStatus,
+                  paymentGetawayFee,
                   orderID,
                   phoneNumber,
                   executionTime,
@@ -64,12 +67,7 @@ const PaypalOrder = () => {
             };
       });
 
-
-
       const filterOrder = combinedData?.filter((order) => order.wayToPurchase == 'paypal')
-
-
-
 
       return (
             <div className="p-6 w-full text-black">
@@ -92,7 +90,7 @@ const PaypalOrder = () => {
                                                 <th>
                                                       Order Id
                                                 </th>
-                                              
+
                                                 <th>Mobile</th>
                                                 <th>Food Id</th>
                                                 <th>Food Items</th>
@@ -104,7 +102,11 @@ const PaypalOrder = () => {
                                     <tbody>
                                           {/* row 1 */}
                                           {
-                                                filterOrder?.map((order, index) => <OrderTab index={index} key={index} order={order} />)
+                                                filterOrder?.map((order, index) => {
+                                                      return (
+                                                            <OrderTab index={index} key={index} order={order} />
+                                                      )
+                                                })
                                           }
 
                                     </tbody>

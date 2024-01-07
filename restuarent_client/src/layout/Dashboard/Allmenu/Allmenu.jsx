@@ -1,28 +1,66 @@
 import React, { useState } from 'react';
+import { FaRegPlusSquare, FaRegMinusSquare } from "react-icons/fa";
+
 import { PiTextColumnsBold, PiRowsFill } from "react-icons/pi";
 
 import { Link } from 'react-router-dom';
 import MenuData from '../../../CustomHooks/MenuData/MenuData';
 import MenuCard from './MenuCard';
+import useUrl from '../../../CustomHooks/URL/UseUrl';
+import axios from 'axios';
+import { ToastContainer, toast } from 'react-toastify';
 
 const Allmenu = () => {
   const { menu, isLoading, refetch } = MenuData();
   const [isColumnView, setIsColumnView] = useState(true)
   const [searchQuery, setSearchQuery] = useState('');
+  const [url] = useUrl();
 
   const handleSearchChange = (e) => {
     setSearchQuery(e.target.value);
   };
 
-
   const filteredMenuItems = menu.filter((menuItem) =>
     menuItem?.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
-
+  const updateQuantity = async (method, quantity, id) => {
+    const check = Math.max(0, quantity)
+    const body = {
+      id: id,
+      quantity: method == "+" ?
+        quantity + 1 :
+        (check ? check - 1 : 0)
+    }
+    try {
+      const response = await axios.put(`${url}/menu/quantity`, body, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      const responseData = response.data;
+      if (responseData.InsertedId > 0) {
+        toast.success("Quantity updated");
+      } else {
+        toast.error("Something is wrong");
+      }
+    }
+    catch (error) {
+      toast.error("Error while sending the order. Please try again later.", {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
+    }
+  }
   return (
     <div className="">
       <h1 className="text-2xl text-center font-bold mb-3">Restaurant Menu</h1>
-
+      <ToastContainer></ToastContainer>
       <div className='flex gap-2 items-center md:gap-20  justify-center m-4'>
 
         <input
@@ -84,6 +122,29 @@ const Allmenu = () => {
                           {
                             m?.price
                           }
+                        </td>
+                        <td>
+                          <div className='flex items-center'>
+                            <button
+                              onClick={() => updateQuantity("-", (m?.quantity ? m?.quantity : 0), m?.id)}
+                              className='btn btn-sm rounded-sm'
+                            >
+                              <FaRegMinusSquare />
+                            </button>
+                            <span className='btn btn-sm rounded-sm btn-disabled' style={{ color: 'black' }}>
+                              {
+                                m?.quantity
+                              }
+                            </span>
+
+                            <button className='btn btn-sm rounded-sm'
+                              onClick={() =>
+                                updateQuantity("+", (m?.quantity ? m?.quantity : 0), m?.id)
+                              }
+                            >
+                              <FaRegPlusSquare />
+                            </button>
+                          </div>
                         </td>
                         <th>
                           <div className='flex flex-row gap-1'>

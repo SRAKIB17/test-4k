@@ -407,15 +407,23 @@ app.post('/menu', (req, res) => {
       const menu = req.body;
 
 
-      const { name, recipe, category, price, image } = menu;
-      console.log(menu);
+      const { name, recipe, category, price, image, quantity } = menu;
       // const image = req.file.path;
 
-      const sql = `INSERT INTO item(name,recipe,image,category,price) VALUE("${name}","${recipe}","${image}","${category}",${price})`;
-
+      const sql = `INSERT INTO item(name,recipe,image,category,price,quantity) VALUE("${name}","${recipe}","${image}","${category}",${price},${quantity})`;
       db.query(sql, (err, result) => {
             if (err) return res.json({ InsertedId: 0, messgae: "Menu is not Inserted" });
             res.json({ InsertedId: 1, message: "Menu inserted successfully" })
+      })
+})
+
+app.put('/menu/quantity', (req, res) => {
+      const menu = req.body;
+      const { quantity, id } = menu;
+      const sql = `UPDATE item SET quantity=${quantity} WHERE id = ${id}`;
+      db.query(sql, (err, result) => {
+            if (err) return res.json({ InsertedId: 0, messgae: "Quantity can't not updated" });
+            res.json({ InsertedId: 1, message: "Quantity updated" })
       })
 })
 
@@ -554,12 +562,7 @@ app.get('/orders', (req, res) => {
 
             const query = `
             SELECT
-            orders.orderID,
-            orders.executionTime,
-            orders.orderDate,
-            orders.customerPhoneNumber,
-            orders.wayOfPurchase,
-            orders.orderStatus,
+            orders.*,
             GROUP_CONCAT(
                 JSON_OBJECT(
                     'itemID', orderItem.itemID,
