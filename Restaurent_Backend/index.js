@@ -555,11 +555,8 @@ app.get('/orders', (req, res) => {
       const setGroupConcatMaxLenQuery = 'SET SESSION group_concat_max_len = 10000000000000;';
       db.query(setGroupConcatMaxLenQuery, (setGroupConcatError) => {
             if (setGroupConcatError) {
-                  console.error('Error setting group_concat_max_len:', setGroupConcatError);
-                  res.status(500).json({ message: "Internal Server Error" });
-                  return;
+                  return res.status(500).json({ message: "Internal Server Error" });
             }
-
             const query = `
             SELECT
             orders.*,
@@ -577,8 +574,7 @@ app.get('/orders', (req, res) => {
             db.query(query, (error, results) => {
                   if (error) {
                         console.error('Error fetching orders:', error);
-                        res.status(500).json({ message: "Internal Server Error" });
-                        return;
+                        return res.status(500).json({ message: "Internal Server Error" });
                   }
 
                   // Parse the items and send the response
@@ -595,12 +591,12 @@ app.get('/orders', (req, res) => {
 app.patch('/orders/:id', (req, res) => {
       const order_id = req.params.id;
       const text = req.body.buttonText;
-      console.log(text);
-
-
       const updateQuery = `UPDATE orders SET orderStatus = "${text}" WHERE orderID = "${order_id}"`;
 
-      db.query(updateQuery, (err, result) => {
+      const updateItem = req?.body?.items?.map(r => {
+            return `UPDATE item SET quantity = ${r?.quantity} WHERE id = "${r?.id}"`
+      })?.join(";")
+      db.query(`${updateQuery};${updateItem}`, (err, result) => {
             if (err) {
                   return res.status(500).json({ updated: 0, message: 'Error updating payment method.' });
             }

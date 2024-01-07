@@ -1,7 +1,7 @@
 import React from 'react';
-import useUrl from '../../CustomHooks/URL/UseUrl';
 import { ToastContainer, toast } from 'react-toastify';
 import OrderData from '../../CustomHooks/OrderData/OrderData';
+import useUrl from '../../CustomHooks/URL/UseUrl';
 
 const OrderTab = ({ order, index }) => {
       const [url] = useUrl()
@@ -9,8 +9,12 @@ const OrderTab = ({ order, index }) => {
 
       const handleOrder = async (order) => {
             const id = order?.orderID
-
-
+            const items = order?.foodInfo?.map(r => {
+                  return {
+                        id: r?.foodId,
+                        quantity: r?.quantity
+                  }
+            })
             if (order?.wayToPurchase == 'cash') {
                   try {
                         // Make an API call to update the button text based on order ID
@@ -19,7 +23,7 @@ const OrderTab = ({ order, index }) => {
                               headers: {
                                     'Content-Type': 'application/json',
                               },
-                              body: JSON.stringify({ buttonText: "close" }),
+                              body: JSON.stringify({ buttonText: "cancel", items: items }),
                         });
                         const responseData = await response.json()
 
@@ -27,29 +31,9 @@ const OrderTab = ({ order, index }) => {
                               // Update the button text with the data from the backend
 
                               refetch()
-                              toast.success(responseData.message, {
-                                    position: "top-right",
-                                    autoClose: 3000,
-                                    hideProgressBar: false,
-                                    closeOnClick: true,
-                                    pauseOnHover: true,
-                                    draggable: true,
-                                    progress: undefined,
-                                    theme: "light",
-
-                              });
+                              toast.success(responseData.message);
                         } else {
-                              toast.error(responseData.message, {
-                                    position: "top-right",
-                                    autoClose: 5000,
-                                    hideProgressBar: false,
-                                    closeOnClick: true,
-                                    pauseOnHover: true,
-                                    draggable: true,
-                                    progress: undefined,
-                                    theme: "light",
-
-                              });
+                              toast.error(responseData.message);
                         }
                   } catch (error) {
                         console.error('Error updating button text:', error);
@@ -61,8 +45,6 @@ const OrderTab = ({ order, index }) => {
       }
       const price = order?.foodInfo.map(item => item.price * item.quantity).reduce((total, price) => total + price, 0);
       const totalPrice = (price + price * 0.17)
-
-      console.log(order)
 
       return (
             <>
@@ -105,9 +87,13 @@ const OrderTab = ({ order, index }) => {
                         <td>
                               {
                                     order?.wayToPurchase == 'cash' ?
-                                          <button onClick={() => handleOrder(order)} className={`btn text-green-500 btn-ghost btn-xs ${order?.orderStatus == 'close' && ' text-red-500  '} `}
-                                                disabled={order.orderStatus === 'close'}
-                                          > {order?.orderStatus}</button>
+                                          <button
+                                                onClick={() => handleOrder(order)}
+                                                className={`btn text-green-500 btn-ghost btn-xs ${order?.orderStatus == 'cancel' && ' text-red-500  '} `}
+                                                disabled={order.orderStatus === 'cancel'}
+                                          >
+                                                {order?.orderStatus}
+                                          </button>
                                           :
                                           <p >Paypal</p>
 

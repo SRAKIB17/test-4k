@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 
-import Loader from '../Loader';
-import useUrl from '../../CustomHooks/URL/UseUrl';
-import OrderData from '../../CustomHooks/OrderData/OrderData';
-import { ToastContainer, toast } from 'react-toastify';
-import OrderTab from './OrderTab';
+import { ToastContainer } from 'react-toastify';
 import MenuData from '../../CustomHooks/MenuData/MenuData';
+import OrderData from '../../CustomHooks/OrderData/OrderData';
+import useUrl from '../../CustomHooks/URL/UseUrl';
+import Loader from '../Loader';
+import OrderTab from './OrderTab';
 const CashOrder = () => {
       const [url] = useUrl()
       const { order, isLoading, refetch } = OrderData();
@@ -15,13 +15,6 @@ const CashOrder = () => {
       if (isLoading || !menu) {
             return <Loader />
       }
-
-
-
-
-
-
-      // alam 
       // Function to get information about food items in an order
       const getFoodInfoFromOrder = (order) => {
             return order.items.map((item) => {
@@ -76,11 +69,11 @@ const CashOrder = () => {
       const filteredOrders = combinedData.filter((order) => order.wayToPurchase === 'cash' && order.orderStatus == 'active');
 
       // Filter objects with 'waytopayment' equal to 'cash' and 'status' equal to 'close'
-      const closedOrders = combinedData.filter((order) => order.wayToPurchase === 'cash' && order.orderStatus == 'close');
+      const closedOrders = combinedData.filter((order) => order.wayToPurchase === 'cash' && order.orderStatus == 'cancel');
 
       // Concatenate the two arrays to have 'open' orders at the top
       const orderedOrders = [...filteredOrders, ...closedOrders];
-      
+
       return (
             <div className="p-6 w-full text-black">
 
@@ -114,7 +107,11 @@ const CashOrder = () => {
                                     <tbody>
                                           {/* row 1 */}
                                           {
-                                                orderedOrders?.map((order, index) => <OrderTab index={index} key={index} order={order} />)
+                                                orderedOrders?.map((order, index) => {
+                                                      return (
+                                                            <OrderTab index={index} key={index} order={order} />
+                                                      )
+                                                })
                                           }
 
                                     </tbody>
@@ -140,9 +137,6 @@ const CashOrder = () => {
                               </table>
                         </div>
                   </div>
-
-
-
             </div>
       );
 };
